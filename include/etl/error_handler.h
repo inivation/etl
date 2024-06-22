@@ -166,12 +166,23 @@ namespace etl
       stub_type stub;
     };
 
+  #if ETL_USING_CPP17
+    // Use C++17 static inline to guarantee proper initialization once.
+    static inline invocation_element invocation{};
+  #endif
+
     //*************************************************************************
     /// Returns the static invocation element.
     //*************************************************************************
     static invocation_element& get_invocation_element()
     {
+  #if ETL_NOT_USING_CPP17
+      // You might get errors about "Undefined reference to __cxa_guard_acquire
+      // and __cxa_guard_release" due to thread-safe initialization of statics;
+      // either have your STL provide those, or if on a single-threaded system,
+      // add "-fno-threadsafe-statics" to your compile flags.
       static invocation_element invocation;
+  #endif
 
       return invocation;
     }
